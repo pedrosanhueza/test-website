@@ -5,85 +5,45 @@
   <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-  <button onclick="sortTable()">Sort Table</button>
-  <button onclick="filterTable()">Filter Table</button>
+  <button onclick="fetchData()">Load Data</button>
   
   <div id="csvTable"></div>
   
   <script>
-    // Function to fetch and parse CSV data
-    function loadCSV() {
-      var csvFile = "constitucionales_listas_pactos.csv";
-      var xhr = new XMLHttpRequest();
-      
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          var csvData = xhr.responseText;
-          var table = "<table id='myTable'>";
-          var rows = csvData.split("\n");
-          
-          for (var i = 0; i < rows.length; i++) {
-            table += "<tr>";
-            var cells = rows[i].split(",");
-            
-            for (var j = 0; j < cells.length; j++) {
-              table += "<td>" + cells[j] + "</td>";
-            }
-            
-            table += "</tr>";
-          }
-          
-          table += "</table>";
-          document.getElementById("csvTable").innerHTML = table;
-        }
-      };
-      
-      xhr.open("GET", csvFile, true);
-      xhr.send();
+    // Function to fetch data from the API
+    function fetchData() {
+      var url = 'https://slcairport.ridesystems.net/Services/JSONPRelay.svc/GetMapVehiclePoints?apiKey=8882812681';
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => buildTable(data))
+        .catch(error => console.error(error));
     }
     
-    // Load the CSV data when the page finishes loading
-    window.addEventListener("load", loadCSV);
-    
-    // Function to sort the table
-    function sortTable() {
-      var table = document.getElementById("myTable");
-      var rows = Array.from(table.getElementsByTagName("tr"));
+    // Function to build the table with the fetched data
+    function buildTable(data) {
+      var table = "<table id='myTable'>";
       
-      rows.sort(function(a, b) {
-        var textA = a.textContent.trim();
-        var textB = b.textContent.trim();
-        
-        return textA.localeCompare(textB, undefined, { numeric: true, sensitivity: 'base' });
-      });
-      
-      table.innerHTML = "";
-      rows.forEach(function(row) {
-        table.appendChild(row);
-      });
-    }
-    
-    // Function to filter the table
-    function filterTable() {
-      var input = prompt("Enter a value to filter the table:");
-      var table = document.getElementById("myTable");
-      var rows = table.getElementsByTagName("tr");
-      
-      for (var i = 1; i < rows.length; i++) {
-        var cells = rows[i].getElementsByTagName("td");
-        var found = false;
-        
-        for (var j = 0; j < cells.length; j++) {
-          var cellValue = cells[j].textContent || cells[j].innerText;
-          
-          if (cellValue.includes(input)) {
-            found = true;
-            break;
-          }
-        }
-        
-        rows[i].style.display = found ? "" : "none";
+      // Create table header
+      table += "<thead><tr>";
+      for (var key in data[0]) {
+        table += "<th>" + key + "</th>";
       }
+      table += "</tr></thead>";
+      
+      // Create table body
+      table += "<tbody>";
+      data.forEach(function(row) {
+        table += "<tr>";
+        for (var key in row) {
+          table += "<td>" + row[key] + "</td>";
+        }
+        table += "</tr>";
+      });
+      table += "</tbody>";
+      
+      table += "</table>";
+      document.getElementById("csvTable").innerHTML = table;
     }
   </script>
 </body>
