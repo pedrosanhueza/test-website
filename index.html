@@ -2,7 +2,14 @@
 <html>
 <head>
   <title>Table Example</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <button onclick="sortTable()">Sort Table</button>
+  <button onclick="filterTable()">Filter Table</button>
+  
+  <div id="csvTable"></div>
+  
   <script>
     // Function to fetch and parse CSV data
     function loadCSV() {
@@ -12,7 +19,7 @@
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
           var csvData = xhr.responseText;
-          var table = "<table>";
+          var table = "<table id='myTable'>";
           var rows = csvData.split("\n");
           
           for (var i = 0; i < rows.length; i++) {
@@ -37,9 +44,47 @@
     
     // Load the CSV data when the page finishes loading
     window.addEventListener("load", loadCSV);
+    
+    // Function to sort the table
+    function sortTable() {
+      var table = document.getElementById("myTable");
+      var rows = Array.from(table.getElementsByTagName("tr"));
+      
+      rows.sort(function(a, b) {
+        var textA = a.textContent.trim();
+        var textB = b.textContent.trim();
+        
+        return textA.localeCompare(textB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+      
+      table.innerHTML = "";
+      rows.forEach(function(row) {
+        table.appendChild(row);
+      });
+    }
+    
+    // Function to filter the table
+    function filterTable() {
+      var input = prompt("Enter a value to filter the table:");
+      var table = document.getElementById("myTable");
+      var rows = table.getElementsByTagName("tr");
+      
+      for (var i = 1; i < rows.length; i++) {
+        var cells = rows[i].getElementsByTagName("td");
+        var found = false;
+        
+        for (var j = 0; j < cells.length; j++) {
+          var cellValue = cells[j].textContent || cells[j].innerText;
+          
+          if (cellValue.includes(input)) {
+            found = true;
+            break;
+          }
+        }
+        
+        rows[i].style.display = found ? "" : "none";
+      }
+    }
   </script>
-</head>
-<body>
-  <div id="csvTable"></div>
 </body>
 </html>
