@@ -2,33 +2,43 @@
 <html>
 <head>
   <title>Table Example</title>
+  <script>
+    // Function to fetch and parse CSV data
+    function loadCSV() {
+      var csvFile = "constitucionales_listas_pactos.csv";
+      var xhr = new XMLHttpRequest();
+      
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var csvData = xhr.responseText;
+          var table = "<table>";
+          var rows = csvData.split("\n");
+          
+          for (var i = 0; i < rows.length; i++) {
+            table += "<tr>";
+            var cells = rows[i].split(",");
+            
+            for (var j = 0; j < cells.length; j++) {
+              table += "<td>" + cells[j] + "</td>";
+            }
+            
+            table += "</tr>";
+          }
+          
+          table += "</table>";
+          document.getElementById("csvTable").innerHTML = table;
+        }
+      };
+      
+      xhr.open("GET", csvFile, true);
+      xhr.send();
+    }
+    
+    // Load the CSV data when the page finishes loading
+    window.addEventListener("load", loadCSV);
+  </script>
 </head>
 <body>
-  <table>
-    <thead>
-      <tr>
-        <th>Header 1</th>
-        <th>Header 2</th>
-        <th>Header 3</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Row 1, Cell 1</td>
-        <td>Row 1, Cell 2</td>
-        <td>Row 1, Cell 3</td>
-      </tr>
-      <tr>
-        <td>Row 2, Cell 1</td>
-        <td>Row 2, Cell 2</td>
-        <td>Row 2, Cell 3</td>
-      </tr>
-      <tr>
-        <td>Row 3, Cell 1</td>
-        <td>Row 3, Cell 2</td>
-        <td>Row 3, Cell 3</td>
-      </tr>
-    </tbody>
-  </table>
+  <div id="csvTable"></div>
 </body>
 </html>
